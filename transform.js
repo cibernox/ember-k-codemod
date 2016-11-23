@@ -40,7 +40,7 @@ function transform(file, api, options) {
       computed: false
     })
     .filter(({ value: node }) => isEmberDotK(node.value))
-    .forEach(({ value: node }) => convertToEmptyMethod(node)); 
+    .forEach(({ value: node }) => convertToEmptyMethod(node));
   }
 
   /**
@@ -131,7 +131,7 @@ function transform(file, api, options) {
   function removeDestructuringAlias(root) {
     let aliasedName;
     root.find(j.VariableDeclarator)
-      .filter(({ value: node }) => node.init.name === 'Ember' && node.id.type === 'ObjectPattern')
+      .filter(({ value: node }) => (node.init.name === 'Ember' || node.init.name === 'Em') && node.id.type === 'ObjectPattern')
       .forEach(({ value: node }) => {
         if (!aliasedName) {
           let index = node.id.properties.findIndex((prop) => prop.key.name === 'K');
@@ -141,18 +141,18 @@ function transform(file, api, options) {
           }
         }
       });
-      return aliasedName;    
+      return aliasedName;
   }
 
   function isEmberDotK(node) {
     return j.MemberExpression.check(node) &&
-      node.object.name === 'Ember' &&
+      (node.object.name === 'Ember' || node.object.name === 'Em') &&
       node.property.name === 'K';
   }
 
   function convertToEmptyMethod(node) {
     node.method = true;
-    node.value = createEmptyFn();    
+    node.value = createEmptyFn();
   }
 
   function createEmptyFn() {
