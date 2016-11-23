@@ -17,10 +17,12 @@ function transform(file, api, options) {
   let root = j(source);
   replaceDirectEmberKObjectProperty(root);
   replaceDirectEmberKFunctionArgument(root);
+  replaceDirectEmberKAssignment(root);
   let aliasedName = removeDestructuringAlias(root);
   if (aliasedName) {
     replaceAliasedEmberKObjectProperty(root, aliasedName);
     replaceAliasedFunctionArgument(root, aliasedName);
+    replaceAliasedAssignment(root, aliasedName);
   }
 
   return root.toSource();
@@ -97,6 +99,33 @@ function transform(file, api, options) {
         node.arguments[index] = createEmptyFn();
       }
     });
+  }
+  /**
+   * Replaces things like:
+   * ```js
+   * obj['foo'] = Ember.K;
+   * obj.foo = Ember.K;
+   * ```
+   */
+  function replaceDirectEmberKAssignment(root) {
+    root.find(j.AssignmentExpression)
+    .filter(({ value: node }) => isEmberDotK(node.right))
+    .forEach(({ value: node }) => node.right = createEmptyFn());
+  }
+
+
+  /**
+   * Replaces things like:
+   * ```js
+   * const { K } = Ember;
+   * obj['foo'] = K;
+   * obj.foo = K;
+   * ```
+   */
+  function replaceAliasedAssignment(root, aliasedName) {
+    root.find(j.AssignmentExpression)
+    .filter(({ value: node }) => node.right.name === aliasedName)
+    .forEach(({ value: node }) => node.right = createEmptyFn());
   }
 
   function removeDestructuringAlias(root) {
