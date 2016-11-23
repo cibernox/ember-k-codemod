@@ -16,7 +16,12 @@ function transform(file, api, options) {
 
   let root = j(source);
   replaceDirectEmberKObjectProperty(root);
-  replaceDestructuredEmberKObjectProperty(root);
+  replaceDirectEmberKFunctionArgument(root);
+  let aliasedName = removeDestructuringAlias(root);
+  if (aliasedName) {
+    replaceAliasedEmberKObjectProperty(root, aliasedName);
+    replaceAliasedFunctionArgument(root, aliasedName);
+  }
 
   return root.toSource();
 
@@ -32,8 +37,22 @@ function transform(file, api, options) {
       shorthand: false,
       computed: false
     })
-    .filter(({ value: node }) => isEmberDotK(node))
+    .filter(({ value: node }) => isEmberDotK(node.value))
     .forEach(({ value: node }) => convertToEmptyMethod(node)); 
+  }
+
+  /**
+   * Replaces things like
+   * Ember.set(this, 'propName', Ember.K)
+   */
+  function replaceDirectEmberKFunctionArgument() {
+    root.find(j.CallExpression)
+    .forEach(({ value: node }) => {
+      let index = node.arguments.findIndex(isEmberDotK);
+      if (index > -1) {
+        node.arguments[index] = createEmptyFn();
+      }
+    });
   }
 
   /**
@@ -53,36 +72,53 @@ function transform(file, api, options) {
    * }
    * ```
    */
-  function replaceDestructuredEmberKObjectProperty(root) {
-    let emberKisDestructured = false;
-    let aliasedName = 'K';
-    root.find(j.VariableDeclarator)
-      .filter(({ value: node }) => node.init.name === 'Ember' && node.id.type === 'ObjectPattern')
-      .forEach(({ value: node }) => {
-        if (!emberKisDestructured) {
-          let index = node.id.properties.findIndex((prop) => prop.key.name === 'K');
-          if (index > -1) {
-            emberKisDestructured = true;
-            aliasedName = node.id.properties[index].value.name;
-            node.id.properties = node.id.properties.slice(0, index).concat(node.id.properties.slice(index+1));
-          }
-        }
-      });
-    if (!emberKisDestructured) { return; }
-
+  function replaceAliasedEmberKObjectProperty(root, aliasedName) {
     root.find(j.Property, {
       method: false,
       shorthand: false,
       computed: false
     })
     .filter(({ value: node }) => node.value.name === aliasedName)
-    .forEach(({ value: node }) => convertToEmptyMethod(node));       
+    .forEach(({ value: node }) => convertToEmptyMethod(node));
+  }
+
+  /**
+   * Replaces things like:
+   * ```js
+   * const { K: noop } = Ember;
+   * Ember.set(this, 'propName', noop)
+   * ```
+   */
+  function replaceAliasedFunctionArgument(root, aliasedName) {
+    root.find(j.CallExpression)
+    .forEach(({ value: node }) => {
+      let index = node.arguments.findIndex((arg) => j.Identifier.check(arg) && arg.name === aliasedName);
+      if (index > -1) {
+        node.arguments[index] = createEmptyFn();
+      }
+    });
+  }
+
+  function removeDestructuringAlias(root) {
+    let aliasedName;
+    root.find(j.VariableDeclarator)
+      .filter(({ value: node }) => node.init.name === 'Ember' && node.id.type === 'ObjectPattern')
+      .forEach(({ value: node }) => {
+        if (!aliasedName) {
+          let index = node.id.properties.findIndex((prop) => prop.key.name === 'K');
+          if (index > -1) {
+            aliasedName = node.id.properties[index].value.name;
+            node.id.properties = arrayWithoutItemAt(node.id.properties, index);
+          }
+        }
+      });
+      return aliasedName;    
   }
 
   function isEmberDotK(node) {
-    return j.MemberExpression.check(node.value) &&
-      node.value.object.name === 'Ember' &&
-      node.value.property.name === 'K';
+    return j.MemberExpression.check(node) &&
+      node.object.name === 'Ember' &&
+      node.property.name === 'K';
   }
 
   function convertToEmptyMethod(node) {
@@ -447,86 +483,6 @@ function transform(file, api, options) {
   // }
 }
 
-// function includes(array, value) {
-//   return array.indexOf(value) > -1;
-// }
-
-// class ModuleRegistry {
-//   constructor() {
-//     this.bySource = {};
-//     this.modules = [];
-//   }
-
-//   findModule(mod) {
-//     return this.find(mod.source, mod.imported);
-//   }
-
-//   find(source, imported) {
-//     let byImported = this.bySource[source];
-
-//     if (!byImported) {
-//       byImported = this.bySource[source] = {};
-//     }
-
-//     return byImported[imported] || null;
-//   }
-
-//   create(source, imported, local) {
-//     if (this.find(source, imported)) {
-//       throw new Error(`Module { ${source}, ${imported} } already exists.`);
-//     }
-
-//     let byImported = this.bySource[source];
-//     if (!byImported) {
-//       byImported = this.bySource[source] = {};
-//     }
-
-//     let mod = new Module(source, imported, local);
-//     byImported[imported] = mod;
-//     this.modules.push(mod);
-
-//     return mod;
-//   }
-
-//   get(source, imported, local) {
-//     let mod = this.find(source, imported, local);
-//     if (!mod) {
-//       mod = this.create(source, imported, local);
-//     }
-
-//     return mod;
-//   }
-
-//   hasSource(source) {
-//     return source in this.bySource;
-//   }
-// }
-
-// class Module {
-//   constructor(source, imported, local) {
-//     this.source = source;
-//     this.imported = imported;
-//     this.local = local;
-//     this.node = null;
-//   }
-// }
-
-// class Replacement {
-//   constructor(nodePath, mod) {
-//     this.nodePath = nodePath;
-//     this.mod = mod;
-//   }
-// }
-
-// class Mapping {
-//   constructor([source, imported, local], registry) {
-//     this.source = source;
-//     this.imported = imported || "default";
-//     this.local = local;
-//     this.registry = registry;
-//   }
-
-//   getModule() {
-//     return this.registry.get(this.source, this.imported, this.local);
-//   }
-// }
+function arrayWithoutItemAt(ary, index) {
+  return ary.slice(0, index).concat(ary.slice(index+1));
+}
