@@ -1,10 +1,10 @@
 {
-  "name": "ember-modules-codemod",
-  "version": "0.1.5",
-  "author": "Tom Dale <tom@tomdale.net>",
+  "name": "ember-k-codemod",
+  "version": "0.0.1",
+  "author": "Miguel Camba <miguel.camba@gmail.com>",
   "license": "MIT",
-  "repository": "https://github.com/tomdale/ember-modules-codemod",
-  "bin": "./bin/ember-modules-codemod.js",
+  "repository": "https://github.com/cibernox/ember-k-codemod",
+  "bin": "./bin/ember-k-codemod.js",
   "scripts": {
     "test": "mocha"
   },

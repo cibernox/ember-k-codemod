@@ -6,7 +6,7 @@ const inputPath = __dirname + "/input";
 const expectedPath = __dirname + "/expected-output";
 const jscodeshiftPath = __dirname + "/../node_modules/.bin/jscodeshift";
 const transformPath = __dirname + "/../transform.js";
-const tempPath = temp.mkdirSync("ember-modules-codemod-tests");
+const tempPath = temp.mkdirSync("ember-k-codemod-tests");
 
 const TIMEOUT = 10000;
 const VERBOSE_ENV_VAR = "VERBOSE_JSCODESHIFT";
