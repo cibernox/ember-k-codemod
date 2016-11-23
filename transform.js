@@ -37,14 +37,25 @@ function transform(file, api, options) {
   }
 
   /**
-   * Replaces things like
+   * Replaces things like:
+   * ```js
    * const { computed, K } = Ember;
    * export default {
    *   foo: K
    * }
+   * ```
+   *
+   * It also handles aliases like:
+   * ```js
+   * const { computed, K: noop } = Ember;
+   * export default {
+   *   foo: noop
+   * }
+   * ```
    */
   function replaceDestructuredEmberKObjectProperty(root) {
     let emberKisDestructured = false;
+    let aliasedName = 'K';
     root.find(j.VariableDeclarator)
       .filter(({ value: node }) => node.init.name === 'Ember' && node.id.type === 'ObjectPattern')
       .forEach(({ value: node }) => {
@@ -52,6 +63,7 @@ function transform(file, api, options) {
           let index = node.id.properties.findIndex((prop) => prop.key.name === 'K');
           if (index > -1) {
             emberKisDestructured = true;
+            aliasedName = node.id.properties[index].value.name;
             node.id.properties = node.id.properties.slice(0, index).concat(node.id.properties.slice(index+1));
           }
         }
@@ -63,7 +75,7 @@ function transform(file, api, options) {
       shorthand: false,
       computed: false
     })
-    .filter(({ value: node }) => node.value.name === 'K')
+    .filter(({ value: node }) => node.value.name === aliasedName)
     .forEach(({ value: node }) => convertToEmptyMethod(node));       
   }
 
