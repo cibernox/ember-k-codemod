@@ -20,11 +20,12 @@ function transform(file, api, options) {
 
   return root.toSource();
 
-  // Replaces things like
-  // {
-  //   foo: Ember.K
-  // }
-  //
+  /**
+   * Replaces things like
+   * {
+   *   foo: Ember.K
+   * }
+   */
   function replaceDirectEmberKObjectProperty(root) {
     root.find(j.Property, {
       method: false,
@@ -35,6 +36,13 @@ function transform(file, api, options) {
     .forEach(({ value: node }) => convertToEmptyMethod(node)); 
   }
 
+  /**
+   * Replaces things like
+   * const { computed, K } = Ember;
+   * export default {
+   *   foo: K
+   * }
+   */
   function replaceDestructuredEmberKObjectProperty(root) {
     let emberKisDestructured = false;
     root.find(j.VariableDeclarator)
