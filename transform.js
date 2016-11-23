@@ -1,8 +1,5 @@
 const fs       = require("fs");
 
-const ERROR_WARNING = 1;
-const MISSING_GLOBAL_WARNING = 2;
-
 module.exports = transform;
 
 /**
