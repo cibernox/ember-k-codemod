@@ -1,8 +1,5 @@
 const fs       = require("fs");
-const RESERVED = require("./config/reserved");
-const MAPPINGS = require("./config/mapping");
 
-const LOG_FILE = "ember-modules-codemod.tmp." + process.pid;
 const ERROR_WARNING = 1;
 const MISSING_GLOBAL_WARNING = 2;
 
