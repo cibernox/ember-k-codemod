@@ -21,7 +21,7 @@ try {
     EMBER_K_CODEMOD: true
   }, process.env);
 
-  let transform = spawn(binPath, ["-t", transformPath, "app", "addon", "tests", "test-support"], {
+  let transform = spawn(binPath, ["-t", transformPath, "app", "addon", "tests", "test-support", "lib"], {
     stdio: "inherit",
     env: env
   });
