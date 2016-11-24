@@ -128,7 +128,11 @@ function transform(file, api, options) {
   function removeDestructuringAlias(root) {
     let aliasedName;
     root.find(j.VariableDeclarator)
-      .filter(({ value: node }) => (node.init.name === 'Ember' || node.init.name === 'Em') && node.id.type === 'ObjectPattern')
+      .filter(({ value: node }) => {
+        return node.init &&
+          (node.init.name === 'Ember' || node.init.name === 'Em') &&
+          node.id.type === 'ObjectPattern';
+      })
       .forEach(({ value: node }) => {
         if (!aliasedName) {
           let index = node.id.properties.findIndex((prop) => prop.key.name === 'K');

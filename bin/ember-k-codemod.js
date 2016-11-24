@@ -18,7 +18,7 @@ try {
   let binPath = path.dirname(require.resolve("jscodeshift")) + "/bin/jscodeshift.sh";
   let transformPath = __dirname + "/../transform.js";
   let env = Object.assign({
-    EMBER_MODULES_CODEMOD: true
+    EMBER_K_CODEMOD: true
   }, process.env);
 
   let transform = spawn(binPath, ["-t", transformPath, "app/"], {
