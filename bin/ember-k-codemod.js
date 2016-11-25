@@ -26,7 +26,7 @@ try {
     env: env
   });
 
-  // Generate MODULE_REPORT.md when jscodeshift is done running.
+  // Generate EMBER_K_REPORT.md when jscodeshift is done running.
   transform.on("exit", buildReport);
 } catch (e) {
   if (e.code === "ENOENT") {
@@ -87,7 +87,7 @@ function buildReport() {
     });
 
     // If there's anything to report, convert the JSON tuple into human-formatted
-    // markdown and write it to MODULE_REPORT.md.
+    // markdown and write it to EMBER_K_REPORT.md.
     if (report.length) {
       report = report.map(line => {
         let type = line[0];
@@ -98,10 +98,10 @@ function buildReport() {
         }
       });
 
-      fs.writeFileSync("MODULE_REPORT.md", "## Module Report\n" + report.join("\n"));
-      console.log(chalk.yellow("\nDone! Some files could not be upgraded automatically. See " + chalk.blue("MODULE_REPORT.md") + "."));
+      fs.writeFileSync("EMBER_K_REPORT.md", "## Module Report\n" + report.join("\n"));
+      console.log(chalk.yellow("\nDone! Some files could not be upgraded automatically. See " + chalk.blue("EMBER_K_REPORT.md") + "."));
     } else {
-      console.log(chalk.green("\nDone! All uses of the Ember global have been updated."));
+      console.log(chalk.green("\nDone! All uses of the Ember.K have been updated."));
     }
   });
 }
