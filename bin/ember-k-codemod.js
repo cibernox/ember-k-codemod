@@ -16,7 +16,7 @@ try {
   }
 
   let binPath = path.dirname(require.resolve("jscodeshift")) + "/bin/jscodeshift.sh";
-  let transformPath = __dirname + "/../transform.js";
+  let transformPath = __dirname + "/../index.js";
   let env = Object.assign({
     EMBER_K_CODEMOD: true
   }, process.env);

@@ -5,7 +5,7 @@ const temp = require("temp").track();
 const inputPath = __dirname + "/input";
 const expectedPath = __dirname + "/expected-output";
 const jscodeshiftPath = __dirname + "/../node_modules/.bin/jscodeshift";
-const transformPath = __dirname + "/../transform.js";
+const transformPath = __dirname + "/../index.js";
 const tempPath = temp.mkdirSync("ember-k-codemod-tests");
 
 const TIMEOUT = 10000;
