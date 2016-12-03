@@ -4,8 +4,12 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
-  foo() {},
-  bar() {},
+  foo() {
+    return this;
+  },
+  bar() {
+    return this;
+  },
   "Ember.K": 1,
   other(K) {
     return functionInScope(K);
@@ -14,7 +18,9 @@ export default Ember.Component.extend({
 
 function functionInScope(K) {
   return {
-    qux() {}
+    qux() {
+      return this;
+    }
   };
 }
 

@@ -49,7 +49,7 @@ function transform(file, api, options) {
     .forEach(({ value: node }) => {
       let index = node.arguments.findIndex(isEmberDotK);
       if (index > -1) {
-        node.arguments[index] = createEmptyFn();
+        node.arguments[index] = createEmberKReplacement();
       }
     });
   }
@@ -93,7 +93,7 @@ function transform(file, api, options) {
     .forEach(({ value: node }) => {
       let index = node.arguments.findIndex((arg) => j.Identifier.check(arg) && arg.name === aliasedName);
       if (index > -1) {
-        node.arguments[index] = createEmptyFn();
+        node.arguments[index] = createEmberKReplacement();
       }
     });
   }
@@ -107,7 +107,7 @@ function transform(file, api, options) {
   function replaceDirectEmberKAssignment(root) {
     root.find(j.AssignmentExpression)
     .filter(({ value: node }) => isEmberDotK(node.right))
-    .forEach(({ value: node }) => node.right = createEmptyFn());
+    .forEach(({ value: node }) => node.right = createEmberKReplacement());
   }
 
 
@@ -122,7 +122,7 @@ function transform(file, api, options) {
   function replaceAliasedAssignment(root, aliasedName) {
     root.find(j.AssignmentExpression)
     .filter(({ value: node }) => node.right.name === aliasedName)
-    .forEach(({ value: node }) => node.right = createEmptyFn());
+    .forEach(({ value: node }) => node.right = createEmberKReplacement());
   }
 
   function removeDestructuringAlias(root) {
@@ -153,11 +153,12 @@ function transform(file, api, options) {
 
   function convertToEmptyMethod(node) {
     node.method = true;
-    node.value = createEmptyFn();
+    node.value = createEmberKReplacement();
   }
 
-  function createEmptyFn() {
-    return j.functionExpression(null, [], j.blockStatement([]));
+  function createEmberKReplacement() {
+    let returnStatement = j.returnStatement(j.thisExpression());
+    return j.functionExpression(null, [], j.blockStatement([returnStatement]));
   }
 }
 

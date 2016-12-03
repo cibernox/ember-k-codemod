@@ -5,5 +5,7 @@ const {
 } = Ember;
 
 export default Ember.Component.extend({
-  foo() {}
+  foo() {
+    return this;
+  }
 });
