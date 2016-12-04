@@ -7,7 +7,7 @@
             "request": "launch",
             "program": "${workspaceRoot}/node_modules/.bin/jscodeshift",
             "stopOnEntry": false,
-            "args": ["-t", "transform.js", "-d", "--run-in-band", "test/input"],
+            "args": ["-t", "index.js", "-d", "--run-in-band", "test/input"],
             "cwd": "${workspaceRoot}",
             "preLaunchTask": null,
             "runtimeExecutable": null,

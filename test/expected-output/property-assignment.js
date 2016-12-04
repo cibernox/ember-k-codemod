@@ -2,7 +2,15 @@ const {
   computed
 } = Ember;
 
-this['foo'] = function() {};
-this.foo = function() {};
-this['bar'] = function() {};
-this.bar = function() {};
+this['foo'] = function() {
+  return this;
+};
+this.foo = function() {
+  return this;
+};
+this['bar'] = function() {
+  return this;
+};
+this.bar = function() {
+  return this;
+};
