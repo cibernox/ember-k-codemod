@@ -1,6 +1,6 @@
 {
   "name": "ember-k-codemod",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "author": "Miguel Camba <miguel.camba@gmail.com>",
   "license": "MIT",
   "repository": "https://github.com/cibernox/ember-k-codemod",
