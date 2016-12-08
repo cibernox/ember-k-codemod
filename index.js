@@ -157,8 +157,11 @@ function transform(file, api, options) {
   }
 
   function createEmberKReplacement() {
-    let returnStatement = j.returnStatement(j.thisExpression());
-    return j.functionExpression(null, [], j.blockStatement([returnStatement]));
+    let statements = [];
+    if (process.env.RETURN_THIS === 'true') {
+      statements.push(j.returnStatement(j.thisExpression()));
+    }
+    return j.functionExpression(null, [], j.blockStatement(statements));
   }
 }
 

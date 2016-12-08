@@ -6,6 +6,12 @@ const chalk = require("chalk");
 const path = require("path");
 const glob = require("glob");
 
+let replacementOption = process.argv[2];
+if (replacementOption !== '--empty' && replacementOption !== '--return-this') {
+  console.error(chalk.red('You must choose the replacement strategy by passing either `--empty` or `--return-this`'));
+  process.exit(-1);
+}
+
 let cwd = process.cwd();
 let pkgPath = cwd + "/package.json";
 
@@ -18,7 +24,8 @@ try {
   let binPath = path.dirname(require.resolve("jscodeshift")) + "/bin/jscodeshift.sh";
   let transformPath = __dirname + "/../index.js";
   let env = Object.assign({
-    EMBER_K_CODEMOD: true
+    EMBER_K_CODEMOD: true,
+    RETURN_THIS: replacementOption === '--return-this'
   }, process.env);
 
   let transform = spawn(binPath, ["-t", transformPath, "app", "addon", "tests", "test-support", "lib"], {

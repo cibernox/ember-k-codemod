@@ -10,6 +10,7 @@ const tempPath = temp.mkdirSync("ember-k-codemod-tests");
 
 const TIMEOUT = 10000;
 const VERBOSE_ENV_VAR = "VERBOSE_JSCODESHIFT";
+process.env.RETURN_THIS = "true";
 
 console.log("Running tests. Run with " + VERBOSE_ENV_VAR + " to see jscodeshift output.");
 
