@@ -28,7 +28,7 @@ try {
     RETURN_THIS: replacementOption === '--return-this'
   }, process.env);
 
-  let transform = spawn(binPath, ["-t", transformPath, "app", "addon", "tests", "test-support", "lib"], {
+  let transform = spawn(binPath, ["-t", transformPath, "app", "addon", "tests", "packages", "src", "test-support", "lib"], {
     stdio: "inherit",
     env: env
   });
