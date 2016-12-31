@@ -19,6 +19,12 @@ export default Ember.Component.extend({
     this.foobar = function() {
       return this;
     };
+    this.parrot = this.get('bird') || function() {
+      return this;
+    };
+    this.shepherd = this.get('dog') || function() {
+      return this;
+    };
     for (let e in ary) {
       // noop
     }

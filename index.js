@@ -13,14 +13,16 @@ function transform(file, api, options) {
 
   let root = j(source);
   replaceDirectEmberKObjectProperty(root);
-  replaceDirectEmberKFunctionArgument(root);
-  replaceDirectEmberKAssignment(root);
+  replaceMemberExpressions(root);
   let aliasedName = removeDestructuringAlias(root);
   if (aliasedName) {
     replaceAliasedEmberKObjectProperty(root, aliasedName);
     replaceAliasedFunctionArgument(root, aliasedName);
     replaceAliasedAssignment(root, aliasedName);
+    replaceAliasedInLogicalExpression(root, aliasedName);
   }
+
+  removeEmptyDestructure(root);
 
   return root.toSource();
 
@@ -38,20 +40,6 @@ function transform(file, api, options) {
     })
     .filter(({ value: node }) => isEmberDotK(node.value))
     .forEach(({ value: node }) => convertToEmptyMethod(node));
-  }
-
-  /**
-   * Replaces things like
-   * Ember.set(this, 'propName', Ember.K)
-   */
-  function replaceDirectEmberKFunctionArgument() {
-    root.find(j.CallExpression)
-    .forEach(({ value: node }) => {
-      let index = node.arguments.findIndex(isEmberDotK);
-      if (index > -1) {
-        node.arguments[index] = createEmberKReplacement();
-      }
-    });
   }
 
   /**
@@ -97,19 +85,18 @@ function transform(file, api, options) {
       }
     });
   }
+
   /**
    * Replaces things like:
    * ```js
-   * obj['foo'] = Ember.K;
-   * obj.foo = Ember.K;
+   * Ember.K;
    * ```
    */
-  function replaceDirectEmberKAssignment(root) {
-    root.find(j.AssignmentExpression)
-    .filter(({ value: node }) => isEmberDotK(node.right))
-    .forEach(({ value: node }) => node.right = createEmberKReplacement());
+  function replaceMemberExpressions(root) {
+    root.find(j.MemberExpression)
+    .filter(({ value: node }) => isEmberDotK(node))
+    .replaceWith(() => createEmberKReplacement());
   }
-
 
   /**
    * Replaces things like:
@@ -123,6 +110,35 @@ function transform(file, api, options) {
     root.find(j.AssignmentExpression)
     .filter(({ value: node }) => node.right.name === aliasedName)
     .forEach(({ value: node }) => node.right = createEmberKReplacement());
+  }
+
+  /**
+   * Replaces things like:
+   * ```js
+   * foo || noop
+   * ```
+   */
+  function replaceAliasedInLogicalExpression(root, aliasedName) {
+    root.find(j.LogicalExpression)
+    .filter(({ value: node }) => node.right.name === aliasedName)
+    .forEach(({ value: node }) => node.right = createEmberKReplacement());
+
+    root.find(j.LogicalExpression)
+    .filter(({ value: node }) => node.left.name === aliasedName)
+    .forEach(({ value: node }) => node.left = createEmberKReplacement());
+  }
+
+  /**
+   * Deletes things like:
+   * ```js
+   * const {} = Ember;
+   * ```
+   */
+  function removeEmptyDestructure(root) {
+    root.find(j.VariableDeclarator)
+    .filter(({ value: node }) => {
+      return node.id.type === 'ObjectPattern' && node.id.properties.length === 0;
+    }).remove();
   }
 
   function removeDestructuringAlias(root) {

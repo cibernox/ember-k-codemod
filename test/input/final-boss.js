@@ -12,6 +12,8 @@ export default Ember.Component.extend({
   someFn() {
     this.qux = noop;
     this.foobar = Em.K;
+    this.parrot = this.get('bird') || Ember.K;
+    this.shepherd = this.get('dog') || noop;
     for (let e in ary) {
       // noop
     }
