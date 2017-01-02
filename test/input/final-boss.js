@@ -9,7 +9,7 @@ export default Ember.Component.extend({
   ary: [],
   foo: noop,
   bar: Em.K,
-  someFn() {
+  someFn(doNothing = noop) {
     this.qux = noop;
     this.foobar = Em.K;
     this.parrot = this.get('bird') || Ember.K;

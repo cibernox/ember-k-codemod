@@ -20,6 +20,7 @@ function transform(file, api, options) {
     replaceAliasedFunctionArgument(root, aliasedName);
     replaceAliasedAssignment(root, aliasedName);
     replaceAliasedInLogicalExpression(root, aliasedName);
+    replaceAliasedInAssignmentPattern(root, aliasedName);
   }
 
   removeEmptyDestructure(root);
@@ -126,6 +127,18 @@ function transform(file, api, options) {
     root.find(j.LogicalExpression)
     .filter(({ value: node }) => node.left.name === aliasedName)
     .forEach(({ value: node }) => node.left = createEmberKReplacement());
+  }
+
+  /**
+   * Replaces things like:
+   * ```js
+   * function(doNothing = noop) {}
+   * ```
+   */
+  function replaceAliasedInAssignmentPattern(root, aliasedName) {
+    root.find(j.AssignmentPattern)
+    .filter(({ value: node }) => node.right.name === aliasedName)
+    .forEach(({ value: node }) => node.right = createEmberKReplacement());
   }
 
   /**

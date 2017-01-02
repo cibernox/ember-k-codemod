@@ -12,7 +12,9 @@ export default Ember.Component.extend({
   bar() {
     return this;
   },
-  someFn() {
+  someFn(doNothing = function() {
+    return this;
+  }) {
     this.qux = function() {
       return this;
     };
