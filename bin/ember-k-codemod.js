@@ -22,7 +22,7 @@ try {
   }
 
   let binPath = path.join(path.dirname(require.resolve("jscodeshift")), "bin", "jscodeshift.sh");
-  let transformPath = __dirname + "/../index.js";
+  let transformPath = path.join(__dirname + "..", "index.js");
   let env = Object.assign({
     EMBER_K_CODEMOD: true,
     RETURN_THIS: replacementOption === '--return-this'
