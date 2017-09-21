@@ -13,7 +13,7 @@ if (replacementOption !== '--empty' && replacementOption !== '--return-this') {
 }
 
 let cwd = process.cwd();
-let pkgPath = cwd + "/package.json";
+let pkgPath = path.join(cwd, "package.json");
 
 try {
   let pkg = JSON.parse(fs.readFileSync(pkgPath));
@@ -21,7 +21,7 @@ try {
     notAnEmberApp("I couldn't find ember-cli in the dependencies of " + pkgPath);
   }
 
-  let binPath = path.dirname(require.resolve("jscodeshift")) + "/bin/jscodeshift.sh";
+  let binPath = path.join(path.dirname(require.resolve("jscodeshift")), "bin", "jscodeshift.sh");
   let transformPath = __dirname + "/../index.js";
   let env = Object.assign({
     EMBER_K_CODEMOD: true,
